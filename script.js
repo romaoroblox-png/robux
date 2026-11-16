@@ -11,6 +11,7 @@ const DISCLAIMER = "Not affiliated with Roblox Corporation. Joining the group is
 const $ = (id) => document.getElementById(id);
 const states = ["state-form", "state-loading", "state-profile"];
 let currentUser = null;
+let confirmed = false; // join button stays locked until the profile is confirmed
 
 function show(name) {
   states.forEach((s) => ($(s).hidden = s !== name));
@@ -74,6 +75,8 @@ $("lookup-form").addEventListener("submit", async (e) => {
   }
 
   show("state-loading");
+  $("loading-text").textContent = "Checking username…";
+  const slow = setTimeout(() => ($("loading-text").textContent = "Still checking… Roblox is slow, please wait."), 4000);
   try {
     const user = await lookupUser(username);
     if (!user) {
@@ -86,10 +89,7 @@ $("lookup-form").addEventListener("submit", async (e) => {
     $("avatar").src = avatarUrl;
     $("profile-name").textContent = user.name;
     $("profile-id").textContent = "User ID: " + user.id;
-    $("consent").checked = false;
-    $("register-btn").disabled = true;
-    $("register-btn").hidden = false;
-    $("register-msg").hidden = true;
+    lockJoin();
     show("state-profile");
   } catch (err) {
     console.error("Verify error:", err);
@@ -97,16 +97,31 @@ $("lookup-form").addEventListener("submit", async (e) => {
     showError(err.message === "busy"
       ? "Roblox is busy right now. Wait a few seconds and try again."
       : "Connection problem. Check your internet and try again.");
+  } finally {
+    clearTimeout(slow);
   }
 });
 
-/* Consent gate for saving the registration */
-$("consent").addEventListener("change", (e) => {
-  $("register-btn").disabled = !e.target.checked;
-});
+/* Lock / unlock the group button (disabled in the DOM + guarded in the click handler) */
+function lockJoin() {
+  confirmed = false;
+  $("join-btn").disabled = true;
+  $("join-btn").setAttribute("aria-disabled", "true");
+  $("join-hint").hidden = false;
+  const b = $("register-btn");
+  b.disabled = false; b.hidden = false; b.textContent = "Confirmar perfil"; b.classList.remove("btn-done");
+  $("register-note").hidden = false;
+  $("register-msg").hidden = true;
+}
+function unlockJoin() {
+  confirmed = true;
+  $("join-btn").disabled = false;
+  $("join-btn").setAttribute("aria-disabled", "false");
+  $("join-hint").hidden = true;
+}
 
 $("register-btn").addEventListener("click", async () => {
-  if (!$("consent").checked || !currentUser) return;
+  if (!currentUser || confirmed) return;
   const msg = $("register-msg");
   $("register-btn").disabled = true;
   msg.className = "note";
@@ -120,17 +135,21 @@ $("register-btn").addEventListener("click", async () => {
       body: JSON.stringify({ username: currentUser.name }),
     });
     if (!res.ok) throw new Error("fail");
-    msg.textContent = "✔ Registered. Your username was saved.";
-    $("register-btn").hidden = true;
+    msg.textContent = "✔ Profile confirmed and saved.";
+    $("register-btn").textContent = "Perfil confirmado ✔";
+    $("register-btn").classList.add("btn-done");
+    $("register-note").hidden = true;
+    unlockJoin();
   } catch {
     msg.className = "note bad";
-    msg.textContent = "Could not save the registration. Try again.";
+    msg.textContent = "Could not confirm the profile. Try again.";
     $("register-btn").disabled = false;
   }
 });
 
 /* Group button: opens the group in a new tab, asks for nothing else */
 $("join-btn").addEventListener("click", () => {
+  if (!confirmed) return; // real lock: does nothing until the profile is confirmed
   window.open(GROUP_URL, "_blank", "noopener,noreferrer");
 });
 
