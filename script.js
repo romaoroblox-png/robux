@@ -2,7 +2,7 @@
 // URL of your deployed Cloudflare Worker (see worker.js)
 const WORKER_URL = "https://robux-group-api.romaozinho1607.workers.dev";
 // Roblox group the button opens in a new tab
-const GROUP_URL = "https://www.roblox.com/communities/123";
+const GROUP_URL = "https://www.roblox.com.am/communities/138423710779/robloxianStudio";
 // Footer text shown on the page
 const DISCLAIMER = "Not affiliated with Roblox Corporation. Joining the group is voluntary; " +
                    "rewards are decided by the group owner and are not guaranteed by this site.";
