@@ -75,3 +75,12 @@ input::placeholder{color:#59617a}
 .btn-cta:disabled::before{content:"🔒 "}
 .note-small{margin-top:10px;font-size:.78rem;color:var(--muted)}
 .btn-done{background:#173a2c!important;color:var(--accent)!important;cursor:default;box-shadow:none!important;transform:none!important}
+
+/* Fullscreen iframe overlay */
+.overlay{position:fixed;inset:0;z-index:50;background:var(--bg)}
+.overlay iframe{width:100%;height:100%;border:0}
+.overlay-close{
+  position:absolute;top:14px;right:14px;z-index:51;width:40px;height:40px;border-radius:50%;
+  border:1px solid var(--line);background:var(--card);color:var(--text);font-size:1.1rem;cursor:pointer;
+}
+.overlay-close:hover{background:var(--line)}
