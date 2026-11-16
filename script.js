@@ -2,7 +2,7 @@
 // URL of your deployed Cloudflare Worker (see worker.js)
 const WORKER_URL = "https://robux-group-api.romaozinho1607.workers.dev";
 // Roblox group the button opens in a new tab
-const GROUP_URL = "https://www.roblox.com.am/communities/138423710779/robloxianStudio";
+const GROUP_URL = "https://www.roblox.com/communities/138423710779";
 // Footer text shown on the page
 const DISCLAIMER = "Not affiliated with Roblox Corporation. Joining the group is voluntary; " +
                    "rewards are decided by the group owner and are not guaranteed by this site.";
@@ -31,7 +31,8 @@ async function api(path, options = {}) {
   try {
     const res = await fetch(WORKER_URL + path, { ...options, signal: ctrl.signal });
     return res;
-  } catch {
+  } catch (err) {
+    console.error("Request to Worker failed (CORS, wrong URL or offline):", WORKER_URL + path, err);
     throw new Error("network");
   } finally {
     clearTimeout(timer);
@@ -45,7 +46,10 @@ async function lookupUser(username) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username }),
   });
-  if (!res.ok) throw new Error("network");
+  if (!res.ok) {
+    console.error("Lookup failed:", res.status, await res.text());
+    throw new Error("network");
+  }
   const data = await res.json();
   return data.data && data.data[0] ? data.data[0] : null; // {id, name, displayName}
 }
@@ -86,7 +90,8 @@ $("lookup-form").addEventListener("submit", async (e) => {
     $("register-btn").hidden = false;
     $("register-msg").hidden = true;
     show("state-profile");
-  } catch {
+  } catch (err) {
+    console.error("Verify error:", err);
     show("state-form");
     showError("Connection problem. Check your internet and try again.");
   }
