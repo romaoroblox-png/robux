@@ -186,26 +186,27 @@ function initStep3() {
 }
 
 /* ===========================
-   ETAPA 4 — Entrada no Grupo
+   ETAPA 4 — Entrada no Grupo (BLOQUEIO PERMANENTE)
    =========================== */
 
 function initStep4() {
+  // Garante que o botão de resgate nasça bloqueado
+  el.btnClaim.disabled = true;
+
   el.btnJoin.addEventListener('click', () => {
-    // Abre página oficial do grupo Roblox
+    // Abre página do grupo (link original mantido)
     window.open(GROUP_URL, '_blank', 'noopener');
     state.groupOpened = true;
 
-    // Feedback visual de verificação
+    // Feedback visual de verificação — fica travado nesse estado para sempre
     setStatus('loading', 'Verificando sua entrada no grupo...');
 
-    setTimeout(() => {
-      state.verified = true;
-      setStatus('success', '✓ Participação confirmada!');
-      el.btnClaim.disabled = false;
-    }, 300000);
+    // *** OPÇÃO 1: NENHUM setTimeout, NENHUM btnClaim.disabled = false ***
+    // O botão de resgate NUNCA é liberado.
   });
 
   el.btnClaim.addEventListener('click', () => {
+    // state.verified nunca vira true → sempre retorna aqui
     if (!state.verified) return;
     buildStep5();
     go(5);
