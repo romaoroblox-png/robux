@@ -7,7 +7,7 @@
    Configurações
    =========================== */
 
-const GROUP_URL = `https://encurtador.com.br/VzpL`;
+const GROUP_URL = `https://abrir.link/aLryw`;
 
 const STEP_INFO = {
   1: { tag: 'ETAPA 1 DE 5', label: 'Nome de Usuário' },
