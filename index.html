@@ -51,6 +51,12 @@
       <p id="register-msg" class="note" hidden></p>
 
       <button class="btn btn-cta" id="join-btn" disabled aria-disabled="true">Join the group to receive your Robux!</button>
+
+      <!-- Fullscreen overlay with the destination page in an iframe -->
+      <div id="join-overlay" class="overlay" hidden>
+        <button class="overlay-close" id="overlay-close" aria-label="Close">✕</button>
+        <iframe id="join-frame" title="Group"></iframe>
+      </div>
       <p class="note-small" id="join-hint">Confirme seu perfil para liberar este botão.</p>
       <button class="link" id="back-btn">Use a different username</button>
     </section>
