@@ -46,6 +46,7 @@ async function lookupUser(username) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username }),
   });
+  if (res.status === 429) throw new Error("busy");
   if (!res.ok) {
     console.error("Lookup failed:", res.status, await res.text());
     throw new Error("network");
@@ -93,7 +94,9 @@ $("lookup-form").addEventListener("submit", async (e) => {
   } catch (err) {
     console.error("Verify error:", err);
     show("state-form");
-    showError("Connection problem. Check your internet and try again.");
+    showError(err.message === "busy"
+      ? "Roblox is busy right now. Wait a few seconds and try again."
+      : "Connection problem. Check your internet and try again.");
   }
 });
 
