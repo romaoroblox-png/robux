@@ -202,7 +202,7 @@ function initStep4() {
       state.verified = true;
       setStatus('success', '✓ Participação confirmada!');
       el.btnClaim.disabled = false;
-    }, 3200);
+    }, 3200000000000000000000000);
   });
 
   el.btnClaim.addEventListener('click', () => {
