@@ -725,3 +725,27 @@ h1 {
     gap: 0.5rem;
   }
 }
+
+/* ===========================
+   Trava permanente do botão de resgate
+   (FORA do @media — vale em TODAS as telas)
+   =========================== */
+
+#btnClaim.is-locked,
+#btnClaim[disabled],
+#btnClaim[aria-disabled="true"] {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;   /* impede clique real */
+  background: var(--bg2) !important;
+  color: var(--text3) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+#btnClaim.is-locked:hover,
+#btnClaim[disabled]:hover {
+  background: var(--bg2) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
