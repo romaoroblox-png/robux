@@ -1,86 +1,727 @@
-/* ===== Theme tokens — edit these to restyle the site ===== */
-:root{
-  --bg:#0b0d14; --card:#141824; --line:#252b3d; --text:#eef1f8; --muted:#8c95ad;
-  --accent:#00e08a; --accent-2:#2f7bff; --danger:#ff5c6c; --radius:22px;
+/* ===========================
+   Reset & Variáveis
+   =========================== */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-*{box-sizing:border-box;margin:0}
-body{
-  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:18px;padding:24px;background:var(--bg);color:var(--text);
-  font-family:'Sora',system-ui,sans-serif;overflow-x:hidden;
+
+:root {
+  --bg: #080D18;
+  --bg2: #101A2B;
+  --surface: #131E33;
+  --surface-hover: #192742;
+  --sapphire: #2563EB;
+  --sapphire-dark: #1D4ED8;
+  --blue-light: #60A5FA;
+  --text: #F1F5F9;
+  --text2: #94A3B8;
+  --text3: #64748B;
+  --border: #1E293B;
+  --border-light: #26354D;
+  --green: #34D399;
+  --red: #F87171;
+  --yellow: #FBBF24;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-xs: 8px;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-.glow{position:fixed;width:420px;height:420px;border-radius:50%;filter:blur(110px);opacity:.28;z-index:-1}
-.glow-a{background:var(--accent-2);top:-120px;left:-100px}
-.glow-b{background:var(--accent);bottom:-140px;right:-100px}
 
-.card{
-  width:100%;max-width:480px;padding:40px 32px;text-align:center;
-  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-  box-shadow:0 30px 80px rgba(0,0,0,.45);animation:rise .6s ease both;
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-h1{font-size:clamp(1.6rem,5vw,2.1rem);font-weight:800;letter-spacing:-.02em}
-.sub{color:var(--muted);margin:10px 0 26px;font-size:.95rem}
 
-.field{display:flex;gap:10px;padding:6px;background:var(--bg);border:1px solid var(--line);border-radius:16px;transition:border-color .2s}
-.field:focus-within{border-color:var(--accent)}
-input[type=text],input[type=text]:focus,input[type=text]:focus-visible{outline:0;box-shadow:none}
-input[type=text]{flex:1;min-width:0;padding:12px 14px;background:none;border:0;outline:0;color:var(--text);font:inherit}
-input::placeholder{color:#59617a}
-
-.btn{
-  font:inherit;font-weight:600;border:0;cursor:pointer;border-radius:14px;padding:12px 20px;
-  transition:transform .15s,box-shadow .2s,opacity .2s;
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
 }
-.btn:hover:not(:disabled){transform:translateY(-2px)}
-.btn:active:not(:disabled){transform:translateY(0)}
-.btn:disabled{opacity:.4;cursor:not-allowed}
-.btn:focus-visible,.link:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.btn-primary{background:var(--accent);color:#05150e}
-.btn-primary:hover{box-shadow:0 8px 24px rgba(0,224,138,.35)}
-.btn-block{width:100%;margin-top:18px}
-.btn-ghost{width:100%;margin-top:12px;background:transparent;border:1px solid var(--line);color:var(--text)}
-.btn-cta{
-  width:100%;margin-top:22px;padding:18px;font-size:1.05rem;color:#fff;
-  background:linear-gradient(135deg,var(--accent-2),var(--accent));
-  box-shadow:0 10px 30px rgba(47,123,255,.35);
+
+/* ===========================
+   Iluminação de Fundo
+   =========================== */
+
+.bg-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 700px 450px at 50% 20%, rgba(37, 99, 235, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 400px at 85% 85%, rgba(96, 165, 250, 0.05) 0%, transparent 70%);
 }
-.btn-cta:hover{box-shadow:0 14px 38px rgba(0,224,138,.4)}
-.link{margin-top:16px;background:none;border:0;color:var(--muted);font:inherit;font-size:.85rem;cursor:pointer;text-decoration:underline}
 
-.error{margin-top:14px;color:var(--danger);font-size:.9rem}
-.note{margin-top:10px;font-size:.85rem;color:var(--accent)}
-.note.bad{color:var(--danger)}
+/* ===========================
+   Container Principal
+   =========================== */
 
-.spinner{width:46px;height:46px;margin:10px auto 18px;border:4px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-.profile{display:flex;align-items:center;gap:18px;padding:16px;text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:18px;animation:pop .4s ease both}
-@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
-.profile img{border-radius:50%;background:var(--line);border:3px solid var(--accent)}
-.name{font-weight:800;font-size:1.25rem;word-break:break-all}
-.meta{color:var(--muted);font-size:.8rem;margin-top:4px}
-.ok{margin:16px 0;color:var(--accent);font-size:.9rem}
-.consent{display:flex;gap:10px;align-items:flex-start;text-align:left;font-size:.82rem;color:var(--muted);cursor:pointer}
-.consent input{margin-top:3px;accent-color:var(--accent)}
-
-.disclaimer{max-width:480px;text-align:center;font-size:.72rem;color:#59617a}
-[hidden]{display:none!important}
-@media (max-width:480px){.card{padding:30px 20px}.field{flex-direction:column}.profile{flex-direction:column;text-align:center}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}.card,.profile{animation:none!important}.spinner{animation:spin 1.6s linear infinite!important}}
-
-/* Locked state of the group button */
-.btn-cta:disabled{background:#232839;color:#6b738c;box-shadow:none;cursor:not-allowed;filter:grayscale(1)}
-.btn-cta:disabled::before{content:"🔒 "}
-.note-small{margin-top:10px;font-size:.78rem;color:var(--muted)}
-.btn-done{background:#173a2c!important;color:var(--accent)!important;cursor:default;box-shadow:none!important;transform:none!important}
-
-/* Fullscreen iframe overlay */
-.overlay{position:fixed;inset:0;z-index:50;background:var(--bg)}
-.overlay iframe{width:100%;height:100%;border:0}
-.overlay-close{
-  position:absolute;top:14px;right:14px;z-index:51;width:40px;height:40px;border-radius:50%;
-  border:1px solid var(--line);background:var(--card);color:var(--text);font-size:1.1rem;cursor:pointer;
+.app {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 500px;
+  padding: 2.25rem 1.25rem 2.5rem;
 }
-.overlay-close:hover{background:var(--line)}
+
+/* ===========================
+   Marca / Logo
+   =========================== */
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  margin-bottom: 1.75rem;
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+/* ===========================
+   Stepper & Nomes das Etapas
+   =========================== */
+
+.stepper {
+  margin-bottom: 2.5rem;
+}
+
+.stepper-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  margin-bottom: 1.25rem;
+}
+
+.step-tag {
+  font-size: 0.675rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--blue-light);
+  text-transform: uppercase;
+}
+
+.step-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.progress-bar {
+  position: relative;
+}
+
+.progress-track {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background: var(--border);
+  transform: translateY(-50%);
+  border-radius: 2px;
+  z-index: 0;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--sapphire), var(--blue-light));
+  border-radius: 2px;
+  transition: width 0.5s var(--ease);
+}
+
+.progress-steps {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+}
+
+.progress-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg2);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.35s var(--ease);
+}
+
+.progress-dot .dot-num {
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: var(--text3);
+  transition: color 0.3s;
+}
+
+.progress-dot .dot-check {
+  display: none;
+  color: #fff;
+}
+
+.progress-dot.active {
+  background: var(--sapphire);
+  border-color: var(--sapphire);
+  box-shadow: 0 0 16px rgba(37, 99, 235, 0.4);
+  transform: scale(1.05);
+}
+
+.progress-dot.active .dot-num {
+  color: #fff;
+}
+
+.progress-dot.done {
+  background: var(--sapphire);
+  border-color: var(--sapphire);
+}
+
+.progress-dot.done .dot-num {
+  display: none;
+}
+
+.progress-dot.done .dot-check {
+  display: block;
+}
+
+/* ===========================
+   Estrutura das Etapas
+   =========================== */
+
+.steps-container {
+  position: relative;
+  min-height: 420px;
+}
+
+.step {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(16px);
+  transition: opacity 0.4s var(--ease), transform 0.4s var(--ease), visibility 0.4s;
+  pointer-events: none;
+}
+
+.step.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+  position: relative;
+}
+
+.step-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===========================
+   Ícone & Título da Etapa
+   =========================== */
+
+.step-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.icon-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bg2);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.icon-glow {
+  box-shadow: 0 0 28px rgba(37, 99, 235, 0.25);
+  animation: glow-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(37, 99, 235, 0.2); }
+  50% { box-shadow: 0 0 35px rgba(37, 99, 235, 0.4); }
+}
+
+h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+  margin-bottom: 0.4rem;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: var(--text2);
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ===========================
+   Campo de Input
+   =========================== */
+
+.input-wrapper {
+  width: 100%;
+  margin-bottom: 1.25rem;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 0.9rem 1.15rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+
+.input-wrapper input::placeholder {
+  color: var(--text3);
+}
+
+.input-wrapper input:focus {
+  border-color: var(--sapphire);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+.input-wrapper input.has-error {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.12);
+}
+
+.input-hint {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--red);
+  margin-top: 0.5rem;
+  min-height: 1.2rem;
+}
+
+/* ===========================
+   Botões
+   =========================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: var(--radius-xs);
+  font-size: 0.925rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  transition: all 0.25s var(--ease);
+  outline: none;
+  user-select: none;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.btn-primary {
+  background: var(--sapphire);
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--sapphire-dark);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-accent {
+  background: linear-gradient(135deg, var(--sapphire), #3B82F6);
+  color: #fff;
+}
+
+.btn-accent:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-accent:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  background: var(--bg2);
+  color: var(--text3);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:hover {
+  background: var(--bg2);
+  color: var(--text);
+  border-color: var(--border-light);
+}
+
+.btn-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+/* ===========================
+   Card de Conta (Etapa 2)
+   =========================== */
+
+.account-card {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  margin-bottom: 1.5rem;
+}
+
+.avatar-ring {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(135deg, var(--sapphire), var(--blue-light));
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-initial {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--blue-light);
+  text-transform: uppercase;
+}
+
+.account-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.meta-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text3);
+}
+
+.meta-display {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meta-user {
+  font-size: 0.85rem;
+  color: var(--blue-light);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===========================
+   Grid dos 6 Cards de Robux
+   =========================== */
+
+.robux-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+  margin-bottom: 1.5rem;
+}
+
+.robux-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1.15rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  outline: none;
+  font-family: inherit;
+  position: relative;
+}
+
+.robux-card:hover {
+  border-color: var(--blue-light);
+  transform: translateY(-2px);
+  background: var(--surface);
+}
+
+.robux-card.selected {
+  border-color: var(--sapphire);
+  background: var(--surface);
+  box-shadow: 0 0 0 1px var(--sapphire), 0 0 20px rgba(37, 99, 235, 0.25);
+}
+
+.rc-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue-light);
+  transition: transform 0.25s var(--ease);
+}
+
+.rc-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.robux-card:hover .rc-icon,
+.robux-card.selected .rc-icon {
+  transform: scale(1.1);
+  color: #93C5FD;
+}
+
+.rc-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.rc-label {
+  font-size: 0.65rem;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+/* ===========================
+   Instruções do Grupo (Etapa 4)
+   =========================== */
+
+.instructions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: 1.75rem;
+}
+
+.inst-item {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.85rem 1rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+}
+
+.inst-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--sapphire);
+  color: #fff;
+  font-size: 0.725rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.inst-item p {
+  font-size: 0.85rem;
+  color: var(--text2);
+  line-height: 1.4;
+}
+
+.inst-item strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Status Badge */
+
+.status-badge {
+  margin-top: 1.15rem;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.45rem 1rem;
+  border-radius: 20px;
+  transition: all 0.3s var(--ease);
+}
+
+.status-badge:empty {
+  display: none;
+}
+
+.status-badge.is-loading {
+  color: var(--blue-light);
+  background: rgba(96, 165, 250, 0.1);
+  border: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+.status-badge.is-success {
+  color: var(--green);
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+.status-badge.is-error {
+  color: var(--red);
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+/* ===========================
+   Card de Resumo (Etapa 5)
+   =========================== */
+
+.summary-card {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 0.5rem 1.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 0;
+}
+
+.summary-divider {
+  height: 1px;
+  background: var(--border);
+}
+
+.summary-label {
+  font-size: 0.85rem;
+  color: var(--text3);
+  font-weight: 500;
+}
+
+.summary-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.summary-value.val-green { color: var(--green); }
+.summary-value.val-yellow { color: var(--yellow); }
+
+.notice {
+  width: 100%;
+  font-size: 0.825rem;
+  color: var(--text2);
+  line-height: 1.6;
+  text-align: center;
+  padding: 1rem 1.25rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+}
+
+/* ===========================
+   Responsividade
+   =========================== */
+
+@media (max-width: 500px) {
+  .app {
+    padding: 1.5rem 1rem 2rem;
+  }
+
+  h1 {
+    font-size: 1.2rem;
+  }
+
+  .robux-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+}

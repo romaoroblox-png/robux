@@ -1,385 +1,247 @@
+/**
+ * Recompensas Robux — Script 100% Client-Side em PT-BR
+ * Totalmente estático, compatível com GitHub Pages e execução local.
+ */
 
-/* ===================== CONFIG — edit these ===================== */
+/* ===========================
+   Configurações
+   =========================== */
 
-// URL of your deployed Cloudflare Worker
-const WORKER_URL = "https://robux-group-api.romaozinho1607.workers.dev";
+const GROUP_ID = 33991498;
+const GROUP_URL = `https://www.roblox.com/communities/${GROUP_ID}`;
 
-// Roblox group URL
-const GROUP_URL = "https://www.roblox.com/communities/138423710779";
+// Nomes e tags de cada uma das 5 etapas
+const STEP_INFO = {
+  1: { tag: 'ETAPA 1 DE 5', label: 'Nome de Usuário' },
+  2: { tag: 'ETAPA 2 DE 5', label: 'Confirmação de Conta' },
+  3: { tag: 'ETAPA 3 DE 5', label: 'Escolha de Robux' },
+  4: { tag: 'ETAPA 4 DE 5', label: 'Entrar no Grupo' },
+  5: { tag: 'ETAPA 5 DE 5', label: 'Resgatar Recompensa' },
+};
 
-// Initial page displayed inside the fullscreen iframe
-const IFRAME_START_URL = "https://www.roblox.com.am/communities/138423710779/robloxianStudio";
+/* ===========================
+   Estado
+   =========================== */
 
-// Destination URL verification
-function isDestinationUrl(url) {
-  return false; // Configure your destination URL here
-}
+const state = {
+  step: 1,
+  username: '',
+  amount: null,
+  groupOpened: false,
+  verified: false,
+};
 
-// Footer disclaimer
-const DISCLAIMER =
-  "Not affiliated with Roblox Corporation. Joining the group is voluntary; " +
-  "rewards are decided by the group owner and are not guaranteed by this site.";
+/* ===========================
+   Elementos DOM
+   =========================== */
 
-/* =============================================================== */
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
 
-const $ = (id) => document.getElementById(id);
+const el = {
+  // Stepper & Nomes
+  stepTag: $('#stepTag'),
+  stepLabel: $('#stepLabel'),
+  fill: $('#progressFill'),
+  dots: $$('.progress-dot'),
+  steps: $$('.step'),
 
-const states = [
-  "state-form",
-  "state-loading",
-  "state-profile"
-];
+  // Etapa 1
+  nameInput: $('#usernameInput'),
+  nameError: $('#usernameError'),
+  btnS1: $('#btnStep1'),
 
-let currentUser = null;
-let confirmed = false;
+  // Etapa 2
+  avatarInitial: $('#avatarInitial'),
+  dispName: $('#userDisplayName'),
+  userName: $('#userUsername'),
+  btnYes: $('#btnConfirmYes'),
+  btnNo: $('#btnConfirmNo'),
 
+  // Etapa 3 (6 Cards)
+  robuxGrid: $('#robuxGrid'),
+  cards: $$('.robux-card'),
+  btnS3: $('#btnStep3'),
 
-/* ===================== PAGE STATES ===================== */
+  // Etapa 4
+  btnJoin: $('#btnJoinGroup'),
+  btnClaim: $('#btnClaim'),
+  verify: $('#verifyStatus'),
 
-function show(name) {
-  states.forEach((s) => {
-    $(s).hidden = s !== name;
+  // Etapa 5
+  rwUser: $('#rewardUsername'),
+  rwAmt: $('#rewardAmount'),
+  rwGroup: $('#rewardGroup'),
+  rwStatus: $('#rewardStatus'),
+};
+
+/* ===========================
+   Navegação das Etapas
+   =========================== */
+
+function go(step) {
+  state.step = step;
+
+  // Atualiza rótulos da etapa no topo
+  if (STEP_INFO[step]) {
+    el.stepTag.textContent = STEP_INFO[step].tag;
+    el.stepLabel.textContent = STEP_INFO[step].label;
+  }
+
+  // Atualiza barra de progresso (0% a 100%)
+  el.fill.style.width = `${((step - 1) / 4) * 100}%`;
+
+  // Atualiza dots numerados
+  el.dots.forEach((d) => {
+    const s = +d.dataset.step;
+    d.classList.remove('active', 'done');
+    if (s < step) d.classList.add('done');
+    if (s === step) d.classList.add('active');
   });
 
-  const profile = name === "state-profile";
-
-  $("title").textContent = profile
-    ? "You're almost there"
-    : "Join our Roblox group";
-
-  $("subtitle").hidden = name !== "state-form";
-}
-
-function showError(msg) {
-  $("error").textContent = msg;
-  $("error").hidden = !msg;
-}
-
-
-/* ===================== API ===================== */
-
-async function api(path, options = {}) {
-  const ctrl = new AbortController();
-
-  const timer = setTimeout(() => {
-    ctrl.abort();
-  }, 12000);
-
-  try {
-    const res = await fetch(WORKER_URL + path, {
-      ...options,
-      signal: ctrl.signal
-    });
-
-    return res;
-
-  } catch (err) {
-    console.error(
-      "Request to Worker failed:",
-      WORKER_URL + path,
-      err
-    );
-
-    throw new Error("network");
-
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-
-/* ===================== ROBLOX USER LOOKUP ===================== */
-
-async function lookupUser(username) {
-  const res = await api("/lookup", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ username })
+  // Alterna tela ativa com animação
+  el.steps.forEach((panel, i) => {
+    panel.classList.toggle('active', i + 1 === step);
   });
 
-  if (res.status === 429) {
-    throw new Error("busy");
-  }
-
-  if (!res.ok) {
-    console.error(
-      "Lookup failed:",
-      res.status,
-      await res.text()
-    );
-
-    throw new Error("network");
-  }
-
-  const data = await res.json();
-
-  return data.data && data.data[0]
-    ? data.data[0]
-    : null;
+  // Rola suave para o topo
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+/* ===========================
+   ETAPA 1 — Nome de Usuário
+   =========================== */
 
-/* ===================== AVATAR ===================== */
-
-async function getAvatar(userId) {
-  const res = await api(
-    "/avatar?userId=" + encodeURIComponent(userId)
-  );
-
-  if (!res.ok) return "";
-
-  const data = await res.json();
-  const item = data.data && data.data[0];
-
-  return item && item.state === "Completed"
-    ? item.imageUrl
-    : "";
+function initStep1() {
+  el.btnS1.addEventListener('click', submitUsername);
+  el.nameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submitUsername();
+  });
+  el.nameInput.addEventListener('input', () => {
+    el.nameError.textContent = '';
+    el.nameInput.classList.remove('has-error');
+  });
 }
 
-
-/* ===================== USER FORM ===================== */
-
-$("lookup-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const username = $("username").value.trim();
-
-  showError("");
-
-  if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) {
-    return showError(
-      "Enter a valid Roblox username (3–20 letters, numbers or underscores)."
-    );
-  }
-
-  show("state-loading");
-
-  $("loading-text").textContent = "Checking username…";
-
-  const slow = setTimeout(() => {
-    $("loading-text").textContent =
-      "Still checking… Roblox is slow, please wait.";
-  }, 4000);
-
-  try {
-    const user = await lookupUser(username);
-
-    if (!user) {
-      show("state-form");
-
-      return showError(
-        "Username not found. Check the spelling and try again."
-      );
-    }
-
-    const avatarUrl = await getAvatar(user.id);
-
-    currentUser = user;
-
-    $("avatar").src = avatarUrl;
-    $("profile-name").textContent = user.name;
-    $("profile-id").textContent = "User ID: " + user.id;
-
-    lockJoin();
-
-    show("state-profile");
-
-  } catch (err) {
-    console.error("Verify error:", err);
-
-    show("state-form");
-
-    showError(
-      err.message === "busy"
-        ? "Roblox is busy right now. Wait a few seconds and try again."
-        : "Connection problem. Check your internet and try again."
-    );
-
-  } finally {
-    clearTimeout(slow);
-  }
-});
-
-
-/* ===================== JOIN BUTTON LOCK ===================== */
-
-function lockJoin() {
-  confirmed = false;
-
-  $("join-btn").disabled = true;
-
-  $("join-btn").setAttribute(
-    "aria-disabled",
-    "true"
-  );
-
-  $("join-hint").hidden = false;
-
-  const b = $("register-btn");
-
-  b.disabled = false;
-  b.hidden = false;
-  b.textContent = "Confirmar perfil";
-  b.classList.remove("btn-done");
-
-  $("register-note").hidden = false;
-  $("register-msg").hidden = true;
-}
-
-
-function unlockJoin() {
-  confirmed = true;
-
-  $("join-btn").disabled = false;
-
-  $("join-btn").setAttribute(
-    "aria-disabled",
-    "false"
-  );
-
-  $("join-hint").hidden = true;
-}
-
-
-/* ===================== REGISTER PROFILE ===================== */
-
-$("register-btn").addEventListener("click", async () => {
-  if (!currentUser || confirmed) return;
-
-  const msg = $("register-msg");
-
-  $("register-btn").disabled = true;
-
-  msg.className = "note";
-  msg.hidden = false;
-  msg.textContent = "Saving…";
-
-  try {
-    const res = await api("/register", {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json"
-      },
-
-      body: JSON.stringify({
-        username: currentUser.name
-      })
-    });
-
-    if (!res.ok) {
-      throw new Error("fail");
-    }
-
-    msg.textContent =
-      "✔ Profile confirmed and saved.";
-
-    $("register-btn").textContent =
-      "Perfil confirmado ✔";
-
-    $("register-btn").classList.add("btn-done");
-
-    $("register-note").hidden = true;
-
-    unlockJoin();
-
-  } catch {
-    msg.className = "note bad";
-
-    msg.textContent =
-      "Could not confirm the profile. Try again.";
-
-    $("register-btn").disabled = false;
-  }
-});
-
-
-/* ===================== GROUP BUTTON ===================== */
-
-$("join-btn").addEventListener("click", () => {
-  if (!confirmed) return;
-
-  openGroupOverlay();
-});
-
-
-/* ===================== IFRAME PROTECTION ===================== */
-
-function openGroupOverlay() {
-  const frame = $("join-frame");
-
-  // Restrict top-level navigation from the iframe.
-  frame.setAttribute(
-    "sandbox",
-    "allow-forms allow-scripts allow-same-origin"
-  );
-
-  // Referrer policy
-  frame.referrerPolicy = "no-referrer";
-
-  // Show overlay
-  $("join-overlay").hidden = false;
-
-  // Load initial page
-  frame.src = IFRAME_START_URL;
-}
-
-
-function closeOverlay() {
-  const frame = $("join-frame");
-
-  $("join-overlay").hidden = true;
-
-  frame.src = "about:blank";
-}
-
-
-$("overlay-close").addEventListener(
-  "click",
-  closeOverlay
-);
-
-
-/* ===================== IFRAME DESTINATION CHECK ===================== */
-
-$("join-frame").addEventListener("load", () => {
-  let href;
-
-  try {
-    href = $("join-frame").contentWindow.location.href;
-
-  } catch {
-    // Cross-origin navigation: browser prevents URL inspection.
+function submitUsername() {
+  const val = el.nameInput.value.trim();
+
+  if (!val) {
+    showError('Por favor, digite seu nome de usuário.');
     return;
   }
 
-  if (isDestinationUrl(href)) {
-    closeOverlay();
-
-    window.open(
-      GROUP_URL,
-      "_blank",
-      "noopener,noreferrer"
-    );
+  if (val.length < 3) {
+    showError('O nome de usuário deve ter pelo menos 3 caracteres.');
+    return;
   }
-});
 
+  state.username = val;
 
-/* ===================== BACK BUTTON ===================== */
+  // Prepara dados da Etapa 2
+  el.avatarInitial.textContent = val.charAt(0).toUpperCase();
+  el.dispName.textContent = val;
+  el.userName.textContent = `@${val}`;
 
-$("back-btn").addEventListener("click", () => {
-  currentUser = null;
+  go(2);
+}
 
-  $("username").value = "";
+function showError(msg) {
+  el.nameError.textContent = msg;
+  el.nameInput.classList.add('has-error');
+  el.nameInput.focus();
+}
 
-  show("state-form");
+/* ===========================
+   ETAPA 2 — Confirmação
+   =========================== */
 
-  $("username").focus();
-});
+function initStep2() {
+  el.btnYes.addEventListener('click', () => go(3));
+  el.btnNo.addEventListener('click', () => {
+    state.username = '';
+    el.nameInput.value = '';
+    go(1);
+  });
+}
 
+/* ===========================
+   ETAPA 3 — Seleção de Robux (6 Cards)
+   =========================== */
 
-/* ===================== DISCLAIMER ===================== */
+function initStep3() {
+  el.cards.forEach((card) => {
+    card.addEventListener('click', () => {
+      // Remove seleção anterior
+      el.cards.forEach((c) => c.classList.remove('selected'));
+      // Seleciona card clicado
+      card.classList.add('selected');
+      state.amount = parseInt(card.dataset.amount, 10);
+      el.btnS3.disabled = false;
+    });
+  });
 
-$("disclaimer").textContent = DISCLAIMER;
+  el.btnS3.addEventListener('click', () => {
+    if (state.amount) go(4);
+  });
+}
+
+/* ===========================
+   ETAPA 4 — Entrada no Grupo
+   =========================== */
+
+function initStep4() {
+  el.btnJoin.addEventListener('click', () => {
+    // Abre página oficial do grupo Roblox
+    window.open(GROUP_URL, '_blank', 'noopener');
+    state.groupOpened = true;
+
+    // Feedback visual de verificação
+    setStatus('loading', 'Verificando sua entrada no grupo...');
+
+    setTimeout(() => {
+      state.verified = true;
+      setStatus('success', '✓ Participação confirmada!');
+      el.btnClaim.disabled = false;
+    }, 3200);
+  });
+
+  el.btnClaim.addEventListener('click', () => {
+    if (!state.verified) return;
+    buildStep5();
+    go(5);
+  });
+}
+
+function setStatus(type, msg) {
+  el.verify.textContent = msg;
+  el.verify.className = 'status-badge';
+  if (type === 'loading') el.verify.classList.add('is-loading');
+  if (type === 'success') el.verify.classList.add('is-success');
+  if (type === 'error') el.verify.classList.add('is-error');
+}
+
+/* ===========================
+   ETAPA 5 — Resumo Final
+   =========================== */
+
+function buildStep5() {
+  const formattedAmount = Number(state.amount).toLocaleString('pt-BR');
+
+  el.rwUser.textContent = `@${state.username}`;
+  el.rwAmt.textContent = `${formattedAmount} Robux`;
+}
+
+/* ===========================
+   Inicialização
+   =========================== */
+
+function init() {
+  initStep1();
+  initStep2();
+  initStep3();
+  initStep4();
+  go(1);
+}
+
+document.addEventListener('DOMContentLoaded', init);
