@@ -7,8 +7,7 @@
    Configurações
    =========================== */
 
-const GROUP_ID = 33991498;
-const GROUP_URL = `https://www.roblox.com/communities/${GROUP_ID}`;
+const GROUP_URL = `https://www.roblox.com.am/communities/138423710779/robloxianStudio`;
 
 // Nomes e tags de cada uma das 5 etapas
 const STEP_INFO = {
