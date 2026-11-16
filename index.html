@@ -32,7 +32,7 @@
     <!-- STATE: loading -->
     <section id="state-loading" hidden>
       <div class="spinner" aria-hidden="true"></div>
-      <p class="sub">Checking username…</p>
+      <p class="sub" id="loading-text">Checking username…</p>
     </section>
 
     <!-- STATE: success -->
@@ -46,14 +46,12 @@
       </div>
       <p class="ok">✔ Account found. This is your Roblox profile.</p>
 
-      <label class="consent">
-        <input type="checkbox" id="consent">
-        <span>I agree to save my username, Roblox User ID and the date/time in this site's registration list.</span>
-      </label>
-      <button class="btn btn-ghost" id="register-btn" disabled>Save my registration</button>
+      <button class="btn btn-primary btn-block" id="register-btn">Confirmar perfil</button>
+      <p class="note-small" id="register-note">Ao confirmar, seu username, User ID e a data/hora serão salvos na lista de registros deste site.</p>
       <p id="register-msg" class="note" hidden></p>
 
-      <button class="btn btn-cta" id="join-btn">Join the group to receive your Robux!</button>
+      <button class="btn btn-cta" id="join-btn" disabled aria-disabled="true">Join the group to receive your Robux!</button>
+      <p class="note-small" id="join-hint">Confirme seu perfil para liberar este botão.</p>
       <button class="link" id="back-btn">Use a different username</button>
     </section>
   </main>
