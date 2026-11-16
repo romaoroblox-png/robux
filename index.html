@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Join the Group</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="glow glow-a"></div><div class="glow glow-b"></div>
+
+  <main class="card" aria-live="polite">
+    <h1 id="title">Join our Roblox group</h1>
+    <p class="sub" id="subtitle">Enter your Roblox username to get started.</p>
+
+    <!-- STATE: initial / error -->
+    <section id="state-form">
+      <form id="lookup-form" novalidate>
+        <label for="username" class="sr">Roblox username</label>
+        <div class="field">
+          <input id="username" type="text" placeholder="Roblox username" autocomplete="off"
+                 autocapitalize="off" spellcheck="false" maxlength="20">
+          <button type="submit" class="btn btn-primary" id="verify-btn">Verify</button>
+        </div>
+      </form>
+      <p id="error" class="error" role="alert" hidden></p>
+    </section>
+
+    <!-- STATE: loading -->
+    <section id="state-loading" hidden>
+      <div class="spinner" aria-hidden="true"></div>
+      <p class="sub">Checking username…</p>
+    </section>
+
+    <!-- STATE: success -->
+    <section id="state-profile" hidden>
+      <div class="profile">
+        <img id="avatar" alt="Roblox avatar" width="120" height="120">
+        <div>
+          <p class="name" id="profile-name"></p>
+          <p class="meta" id="profile-id"></p>
+        </div>
+      </div>
+      <p class="ok">✔ Account found. This is your Roblox profile.</p>
+
+      <label class="consent">
+        <input type="checkbox" id="consent">
+        <span>I agree to save my username, Roblox User ID and the date/time in this site's registration list.</span>
+      </label>
+      <button class="btn btn-ghost" id="register-btn" disabled>Save my registration</button>
+      <p id="register-msg" class="note" hidden></p>
+
+      <button class="btn btn-cta" id="join-btn">Join the group to receive your Robux!</button>
+      <button class="link" id="back-btn">Use a different username</button>
+    </section>
+  </main>
+
+  <p class="disclaimer" id="disclaimer"></p>
+  <script src="script.js"></script>
+</body>
+</html>
