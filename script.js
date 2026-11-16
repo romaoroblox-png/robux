@@ -1,7 +1,7 @@
 /* ===================== CONFIG — edit these ===================== */
 // URL of your deployed Cloudflare Worker (see worker.js)
 const WORKER_URL = "https://robux-group-api.romaozinho1607.workers.dev";
-// Roblox group the button opens in a new tab
+// Roblox group the button opens in a new taba
 const GROUP_URL = "https://www.roblox.com/communities/138423710779";
 // Page shown first inside the fullscreen iframe — must be on YOUR OWN domain,
 // otherwise the browser blocks reading its URL (see checkFrameUrl below).
